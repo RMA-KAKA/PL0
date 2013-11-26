@@ -218,7 +218,12 @@ void GetSym() {
 	    if (CH=='<') {
 		  GetCh();
 		  if (CH=='=') { SYM=LEQ; GetCh(); }
-		  else SYM=LSS;
+		  else if (CH == '>') {
+              SYM = NEQ;
+              GetCh();
+          } else {
+              SYM=LSS;
+          }
 		}
 		else
 		  if (CH=='>') {
@@ -601,7 +606,7 @@ void __fastcall TForm1::ButtonRunClick(TObject *Sender) {
   SSYM['*']=TIMES;     SSYM['/']=SLASH;
   SSYM['(']=LPAREN;    SSYM[')']=RPAREN;
   SSYM['=']=EQL;       SSYM[',']=COMMA;
-  SSYM['.']=PERIOD;    SSYM['#']=NEQ;
+  SSYM['.']=PERIOD;
   SSYM[';']=SEMICOLON;
   strcpy(MNEMONIC[LIT],"LIT");   strcpy(MNEMONIC[OPR],"OPR");
   strcpy(MNEMONIC[LOD],"LOD");   strcpy(MNEMONIC[STO],"STO");

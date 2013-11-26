@@ -1,8 +1,8 @@
 PROGRAM EX01;
 VAR A,B,C;
 BEGIN
-  A:=88;
-  READ(B);
-  C=A+B*(3+B);
-  WRITE(C)
+    A:=88;
+    IF A<>0 THEN
+        A:=0;
+    WRITE(A)
 END.
