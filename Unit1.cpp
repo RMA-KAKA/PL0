@@ -490,10 +490,28 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
     case IFSYM:
         GetSym();
         CONDITION(SymSetUnion(SymSetNew(THENSYM,DOSYM),FSYS),LEV,TX);
-        if (SYM==THENSYM) GetSym();
-        else Error(16);
-        CX1=CX;  GEN(JPC,0,0);
-        STATEMENT(FSYS,LEV,TX);  CODE[CX1].A=CX;
+        if (SYM == THENSYM) {
+            GetSym();
+        } else {
+            Error(16);
+        }
+        CX1 = CX; // 保存当前地址 
+        GEN(JPC,0,0); // 生成跳转指令，跳转地址暂写0
+        STATEMENT(FSYS,LEV,TX); // 处理then后的语句  
+
+        // 处理分号
+        if (SYM == SEMICOLON) {
+            GetSym();
+        }
+
+        CX2 = CX;
+        GEN(JMP, 0, 0); //跳转到else后面的出口
+        CODE[CX1].A=CX; // 回填if不成立的时候
+        if (SYM == ELSESYM) {
+            GetSym();
+            STATEMENT(FSYS,LEV,TX); // 处理else后的语句  
+            CODE[CX2].A=CX; // 回填if的出口
+        }
         break;
     case BEGINSYM:
         GetSym();
@@ -514,10 +532,6 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
         STATEMENT(FSYS,LEV,TX);
         GEN(JMP,0,CX1);
         CODE[CX2].A=CX;
-        break;
-    case ELSESYM:
-        Form1->printfs("I am ELSE");
-        GetSym();
         break;
     case FORSYM:
         Form1->printfs("I am FOR");
