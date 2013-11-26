@@ -22,7 +22,8 @@ typedef enum  { NUL, IDENT, NUMBER, PLUS, MINUS, TIMES,
 	            BECOMES, BEGINSYM, ENDSYM, IFSYM, THENSYM,
 	            WHILESYM, WRITESYM, READSYM, DOSYM, CALLSYM,
 	            CONSTSYM, VARSYM, PROCSYM, PROGSYM, ELSESYM, FORSYM,
-                TOSYM, DOWNTOSYM, RETURNSYM
+                TOSYM, DOWNTOSYM, RETURNSYM, TIMESEQL, DIVEQL, PLUSPLUS,
+                MINUSMINUS, AND, OROR, NOT, OR
         } SYMBOL;
 char *SYMOUT[] = {"NUL", "IDENT", "NUMBER", "PLUS", "MINUS", "TIMES",
 	    "SLASH", "ODDSYM", "EQL", "NEQ", "LSS", "LEQ", "GTR", "GEQ",
@@ -211,31 +212,70 @@ void GetSym() {
       }while(CH>='0' && CH<='9');
 	  if (K>NMAX) Error(30);
     }
-    else
-      if (CH==':') {
+    else if (CH==':') {
 	    GetCh();
 		if (CH=='=') { SYM=BECOMES; GetCh(); }
 		else SYM=NUL;
-      }
-	  else /* THE FOLLOWING TWO CHECK WERE ADDED
-	         BECAUSE ASCII DOES NOT HAVE A SINGLE CHARACTER FOR <= OR >= */
-	    if (CH=='<') {
-		  GetCh();
-		  if (CH=='=') { SYM=LEQ; GetCh(); }
-		  else if (CH == '>') {
-              SYM = NEQ;
-              GetCh();
-          } else {
-              SYM=LSS;
-          }
-		}
-		else
-		  if (CH=='>') {
-		    GetCh();
-			if (CH=='=') { SYM=GEQ; GetCh(); }
-			else SYM=GTR;
-          }
-		  else { SYM=SSYM[CH]; GetCh(); }
+    } else if (CH=='<') {
+		GetCh();
+		if (CH=='=') {
+            SYM=LEQ; GetCh();
+        } else if (CH == '>') {
+            SYM = NEQ;
+            GetCh();
+        } else {
+            SYM=LSS;
+        }
+	} else if (CH=='>') {
+		 GetCh();
+		 if (CH=='=') {
+             SYM=GEQ; GetCh();
+         } else {
+            SYM=GTR;
+         }
+    } else if (CH == '*') {
+        GetCh();
+        if (CH == '=') {
+            SYM = TIMESEQL;
+            GetCh();
+        } else {
+            SYM = TIMES;
+        }
+    } else if (CH == '/') {
+        GetCh();
+        if (CH == '=') {
+            SYM = DIVEQL;
+            GetCh();
+        } else {
+            Error(11);
+        }
+    } else if (CH == '+') {
+        GetCh();
+        if (CH == '+') {
+            SYM = PLUSPLUS;
+            GetCh();
+        } else {
+            SYM = PLUS;
+        }
+    } else if (CH == '-') {
+        GetCh();
+        if (CH == '-') {
+            SYM = MINUSMINUS;
+            GetCh();
+        } else {
+            SYM = MINUS;
+        }
+    } else if (CH == '|') {
+        GetCh();
+        if (CH == '|') {
+            SYM = OROR;
+            GetCh();
+        } else {
+            SYM = OR;
+        }
+    } else {
+        SYM=SSYM[CH]; GetCh();
+    }
 } /*GetSym()*/
 //---------------------------------------------------------------------------
 void GEN(FCT X, int Y, int Z) {
@@ -498,7 +538,34 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
         Form1->printfs("I am RETURN");
         GetSym();
         break;
-
+    case TIMESEQL:
+        Form1->printfs("I am *=");
+        GetSym();
+        break;
+    case DIVEQL:
+        Form1->printfs("I am /=");
+        GetSym();
+        break;
+    case PLUSPLUS:
+        Form1->printfs("I am ++");
+        GetSym();
+        break;
+    case MINUSMINUS:
+        Form1->printfs("I am --");
+        GetSym();
+        break;
+    case AND:
+        Form1->printfs("I am &");
+        GetSym();
+        break;
+    case OROR:
+        Form1->printfs("I am ||");
+        GetSym();
+        break;
+    case NOT:
+        Form1->printfs("I am !");
+        GetSym();
+        break;
   }
   TEST(FSYS,SymSetNULL(),19);
 } /*STATEMENT*/
@@ -645,6 +712,8 @@ void __fastcall TForm1::ButtonRunClick(TObject *Sender) {
   SSYM['=']=EQL;       SSYM[',']=COMMA;
   SSYM['.']=PERIOD;
   SSYM[';']=SEMICOLON;
+  SSYM['&'] =  AND;
+  SSYM['!'] =  NOT;
   strcpy(MNEMONIC[LIT],"LIT");   strcpy(MNEMONIC[OPR],"OPR");
   strcpy(MNEMONIC[LOD],"LOD");   strcpy(MNEMONIC[STO],"STO");
   strcpy(MNEMONIC[CAL],"CAL");   strcpy(MNEMONIC[INI],"INI");
