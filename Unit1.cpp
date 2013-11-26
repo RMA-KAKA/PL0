@@ -37,9 +37,9 @@ typedef  char ALFA[11];
 typedef  enum { CONSTANT, VARIABLE, PROCEDUR } OBJECTS ;
 typedef  enum { LIT, OPR, LOD, STO, CAL, INI, JMP, JPC } FCT;
 typedef struct {
-     FCT F;     /*FUNCTION CODE*/
-     int L;     /*0..LEVMAX  LEVEL*/
-     int A;     /*0..AMAX    DISPLACEMENT ADDR*/
+    FCT F;     /*FUNCTION CODE*/
+    int L;     /*0..LEVMAX  LEVEL*/
+    int A;     /*0..AMAX    DISPLACEMENT ADDR*/
 } INSTRUCTION;
       /* LIT O A -- LOAD CONSTANT A             */
       /* OPR 0 A -- EXECUTE OPR A               */
@@ -65,12 +65,12 @@ ALFA    MNEMONIC[9];
 SYMSET  DECLBEGSYS, STATBEGSYS, FACBEGSYS;
 
 struct {
-  ALFA NAME;
-  OBJECTS KIND;
-  union {
-    int VAL;   /*CONSTANT*/
-    struct { int LEVEL,ADR,SIZE; } vp;  /*VARIABLE,PROCEDUR:*/
-  };
+    ALFA NAME;
+    OBJECTS KIND;
+    union {
+        int VAL;   /*CONSTANT*/
+        struct { int LEVEL,ADR,SIZE; } vp;  /*VARIABLE,PROCEDUR:*/
+    };
 } TABLE[TXMAX];
 
 FILE *FIN,*FOUT;
@@ -80,84 +80,84 @@ void EXPRESSION(SYMSET FSYS, int LEV, int &TX);
 void TERM(SYMSET FSYS, int LEV, int &TX);
 //---------------------------------------------------------------------------
 int SymIn(SYMBOL SYM, SYMSET S1) {
-  return S1[SYM];
+    return S1[SYM];
 }
 //---------------------------------------------------------------------------
 SYMSET SymSetUnion(SYMSET S1, SYMSET S2) {
-  SYMSET S=(SYMSET)malloc(sizeof(int)*33);
-  for (int i=0; i<33; i++)
-    if (S1[i] || S2[i]) S[i]=1;
-    else S[i]=0;
-  return S;
+    SYMSET S=(SYMSET)malloc(sizeof(int)*33);
+    for (int i=0; i<33; i++)
+        if (S1[i] || S2[i]) S[i]=1;
+        else S[i]=0;
+    return S;
 }
 //---------------------------------------------------------------------------
 SYMSET SymSetAdd(SYMBOL SY, SYMSET S) {
-  SYMSET S1;
-  S1=(SYMSET)malloc(sizeof(int)*33);
-  for (int i=0; i<33; i++) S1[i]=S[i];
-  S1[SY]=1;
-  return S1;
+    SYMSET S1;
+    S1=(SYMSET)malloc(sizeof(int)*33);
+    for (int i=0; i<33; i++) S1[i]=S[i];
+    S1[SY]=1;
+    return S1;
 }
 //---------------------------------------------------------------------------
 SYMSET SymSetNew(SYMBOL a) {
-  SYMSET S; int i,k;
-  S=(SYMSET)malloc(sizeof(int)*33);
-  for (i=0; i<33; i++) S[i]=0;
-  S[a]=1;
-  return S;
+    SYMSET S; int i,k;
+    S=(SYMSET)malloc(sizeof(int)*33);
+    for (i=0; i<33; i++) S[i]=0;
+    S[a]=1;
+    return S;
 }
 //---------------------------------------------------------------------------
 SYMSET SymSetNew(SYMBOL a, SYMBOL b) {
-  SYMSET S; int i,k;
-  S=(SYMSET)malloc(sizeof(int)*33);
-  for (i=0; i<33; i++) S[i]=0;
-  S[a]=1;  S[b]=1;
-  return S;
+    SYMSET S; int i,k;
+    S=(SYMSET)malloc(sizeof(int)*33);
+    for (i=0; i<33; i++) S[i]=0;
+    S[a]=1;  S[b]=1;
+    return S;
 }
 //---------------------------------------------------------------------------
 SYMSET SymSetNew(SYMBOL a, SYMBOL b, SYMBOL c) {
-  SYMSET S; int i,k;
-  S=(SYMSET)malloc(sizeof(int)*33);
-  for (i=0; i<33; i++) S[i]=0;
-  S[a]=1;  S[b]=1; S[c]=1;
-  return S;
+    SYMSET S; int i,k;
+    S=(SYMSET)malloc(sizeof(int)*33);
+    for (i=0; i<33; i++) S[i]=0;
+    S[a]=1;  S[b]=1; S[c]=1;
+    return S;
 }
 //---------------------------------------------------------------------------
 SYMSET SymSetNew(SYMBOL a, SYMBOL b, SYMBOL c, SYMBOL d) {
-  SYMSET S; int i,k;
-  S=(SYMSET)malloc(sizeof(int)*33);
-  for (i=0; i<33; i++) S[i]=0;
-  S[a]=1;  S[b]=1; S[c]=1; S[d]=1;
-  return S;
+    SYMSET S; int i,k;
+    S=(SYMSET)malloc(sizeof(int)*33);
+    for (i=0; i<33; i++) S[i]=0;
+    S[a]=1;  S[b]=1; S[c]=1; S[d]=1;
+    return S;
 }
 //---------------------------------------------------------------------------
 SYMSET SymSetNew(SYMBOL a, SYMBOL b, SYMBOL c, SYMBOL d,SYMBOL e) {
-  SYMSET S; int i,k;
-  S=(SYMSET)malloc(sizeof(int)*33);
-  for (i=0; i<33; i++) S[i]=0;
-  S[a]=1;  S[b]=1; S[c]=1; S[d]=1; S[e]=1;
-  return S;
+    SYMSET S; int i,k;
+    S=(SYMSET)malloc(sizeof(int)*33);
+    for (i=0; i<33; i++) S[i]=0;
+    S[a]=1;  S[b]=1; S[c]=1; S[d]=1; S[e]=1;
+    return S;
 }
 //---------------------------------------------------------------------------
 SYMSET SymSetNew(SYMBOL a, SYMBOL b, SYMBOL c, SYMBOL d,SYMBOL e, SYMBOL f) {
-  SYMSET S; int i,k;
-  S=(SYMSET)malloc(sizeof(int)*33);
-  for (i=0; i<33; i++) S[i]=0;
-  S[a]=1;  S[b]=1; S[c]=1; S[d]=1; S[e]=1; S[f]=1;
-  return S;
+    SYMSET S; int i,k;
+    S=(SYMSET)malloc(sizeof(int)*33);
+    for (i=0; i<33; i++) S[i]=0;
+    S[a]=1;  S[b]=1; S[c]=1; S[d]=1; S[e]=1; S[f]=1;
+    return S;
 }
 //---------------------------------------------------------------------------
 SYMSET SymSetNULL() {
-  SYMSET S; int i,n,k;
-  S=(SYMSET)malloc(sizeof(int)*33);
-  for (i=0; i<33; i++) S[i]=0;
-  return S;
+    SYMSET S; int i,n,k;
+    S=(SYMSET)malloc(sizeof(int)*33);
+    for (i=0; i<33; i++) S[i]=0;
+    return S;
 }
 //---------------------------------------------------------------------------
 void Error(int n) {
-  String s = "***"+AnsiString::StringOfChar(' ', CC-1)+"^";
-  Form1->printls(s.c_str(),n);   fprintf(FOUT,"%s%d\n", s.c_str(), n);
-  ERR++;
+    String s = "***"+AnsiString::StringOfChar(' ', CC-1)+"^";
+    Form1->printls(s.c_str(),n);   fprintf(FOUT,"%s%d\n", s.c_str(), n);
+    ERR++;
 } /*Error*/
 //---------------------------------------------------------------------------
 void GetCh() {
@@ -183,36 +183,33 @@ void GetCh() {
 } /*GetCh()*/
 //---------------------------------------------------------------------------
 void GetSym() {
-  int i,J,K;   ALFA  A;
-  while (CH<=' ') GetCh();
-  if (CH>='A' && CH<='Z') { /*ID OR RESERVED WORD*/
-    K=0;
-    do {
-      if (K<AL) A[K++]=CH;
-      GetCh();
-    }while((CH>='A' && CH<='Z')||(CH>='0' && CH<='9'));
-    A[K]='\0';
-    strcpy(ID,A); i=1; J=NORW;
-    for (K = 1; K <= J; K++) {
-        if (strcmp(ID, KWORD[K]) == 0) {
-            SYM = WSYM[K];
-            break;
+    int i,J,K;   ALFA  A;
+    while (CH<=' ') GetCh();
+    if (CH>='A' && CH<='Z') { /*ID OR RESERVED WORD*/
+        K=0;
+        do {
+        if (K<AL) A[K++]=CH;
+        GetCh();
+        } while ((CH>='A' && CH<='Z')||(CH>='0' && CH<='9'));
+        A[K]='\0';
+        strcpy(ID,A); i=1; J=NORW;
+        for (K = 1; K <= J; K++) {
+            if (strcmp(ID, KWORD[K]) == 0) {
+                SYM = WSYM[K];
+                break;
+            }
         }
-    }
-    if (K > J) {
-        SYM = IDENT;
-    }
-  }
-  else
-    if (CH>='0' && CH<='9') { /*NUMBER*/
+        if (K > J) {
+            SYM = IDENT;
+        }
+    } else if (CH>='0' && CH<='9') { /*NUMBER*/
       K=0; NUM=0; SYM=NUMBER;
       do {
-        NUM=10*NUM+(CH-'0');
+            NUM=10*NUM+(CH-'0');
         K++; GetCh();
-      }while(CH>='0' && CH<='9');
+      } while(CH>='0' && CH<='9');
       if (K>NMAX) Error(30);
-    }
-    else if (CH==':') {
+    } else if (CH==':') {
         GetCh();
         if (CH=='=') { SYM=BECOMES; GetCh(); }
         else SYM=NUL;
