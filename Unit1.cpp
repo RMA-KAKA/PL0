@@ -9,7 +9,7 @@
 TForm1 *Form1;
 //---------------------------------------------------------------------------
 const  AL    =  10;  /* LENGTH OF IDENTIFIERS */
-const  NORW  =  14;  /* # OF RESERVED WORDS */
+const  NORW  =  19;  /* # OF RESERVED WORDS */
 const  TXMAX = 100;  /* LENGTH OF IDENTIFIER TABLE */
 const  NMAX  =  14;  /* MAX NUMBER OF DEGITS IN NUMBERS */
 const  AMAX  =2047;  /* MAXIMUM ADDRESS */
@@ -21,14 +21,16 @@ typedef enum  { NUL, IDENT, NUMBER, PLUS, MINUS, TIMES,
 	            LPAREN, RPAREN, COMMA, SEMICOLON, PERIOD,
 	            BECOMES, BEGINSYM, ENDSYM, IFSYM, THENSYM,
 	            WHILESYM, WRITESYM, READSYM, DOSYM, CALLSYM,
-	            CONSTSYM, VARSYM, PROCSYM, PROGSYM
+	            CONSTSYM, VARSYM, PROCSYM, PROGSYM, ELSESYM, FORSYM,
+                TOSYM, DOWNTOSYM, RETURNSYM
         } SYMBOL;
 char *SYMOUT[] = {"NUL", "IDENT", "NUMBER", "PLUS", "MINUS", "TIMES",
 	    "SLASH", "ODDSYM", "EQL", "NEQ", "LSS", "LEQ", "GTR", "GEQ",
 	    "LPAREN", "RPAREN", "COMMA", "SEMICOLON", "PERIOD",
 	    "BECOMES", "BEGINSYM", "ENDSYM", "IFSYM", "THENSYM",
 	    "WHILESYM", "WRITESYM", "READSYM", "DOSYM", "CALLSYM",
-	    "CONSTSYM", "VARSYM", "PROCSYM", "PROGSYM" };
+	    "CONSTSYM", "VARSYM", "PROCSYM", "PROGSYM", "ESYMLSESYM", "FORSYM",
+        "TOSYM", "DOWNTOSYM", "RETURNSYM"};
 typedef  int *SYMSET; // SET OF SYMBOL;
 typedef  char ALFA[11];
 typedef  enum { CONSTANT, VARIABLE, PROCEDUR } OBJECTS ;
@@ -190,13 +192,15 @@ void GetSym() {
 	}while((CH>='A' && CH<='Z')||(CH>='0' && CH<='9'));
 	A[K]='\0';
 	strcpy(ID,A); i=1; J=NORW;
-	do {
-	  K=(i+J) / 2;
-	  if (strcmp(ID,KWORD[K])<=0) J=K-1;
-	  if (strcmp(ID,KWORD[K])>=0) i=K+1;
-	}while(i<=J);
-	if (i-1 > J) SYM=WSYM[K];
-	else SYM=IDENT;
+    for (K = 1; K <= J; K++) {
+        if (strcmp(ID, KWORD[K]) == 0) {
+            SYM = WSYM[K];
+            break;
+        }
+    }
+    if (K > J) {
+        SYM = IDENT;
+    }
   }
   else
     if (CH>='0' && CH<='9') { /*NUMBER*/
@@ -474,6 +478,27 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
 		GEN(JMP,0,CX1);
 		CODE[CX2].A=CX;
 		break;
+    case ELSESYM:
+        Form1->printfs("I am ELSE");
+        GetSym();
+        break;
+    case FORSYM:
+        Form1->printfs("I am FOR");
+        GetSym();
+        break;
+    case TOSYM:
+        Form1->printfs("I am TO");
+        GetSym();
+        break;
+    case DOWNTOSYM:
+        Form1->printfs("I am DOWNTO");
+        GetSym();
+        break;
+    case RETURNSYM:
+        Form1->printfs("I am RETURN");
+        GetSym();
+        break;
+
   }
   TEST(FSYS,SymSetNULL(),19);
 } /*STATEMENT*/
@@ -595,6 +620,12 @@ void __fastcall TForm1::ButtonRunClick(TObject *Sender) {
   strcpy(KWORD[ 9],"PROGRAM");  strcpy(KWORD[10],"READ");
   strcpy(KWORD[11],"THEN");     strcpy(KWORD[12],"VAR");
   strcpy(KWORD[13],"WHILE");    strcpy(KWORD[14],"WRITE");
+  strcpy(KWORD[15], "ELSE");
+  strcpy(KWORD[16], "FOR");
+  strcpy(KWORD[17], "TO");
+  strcpy(KWORD[18], "DOWNTO");
+  strcpy(KWORD[19], "RETURN");
+
   WSYM[ 1]=BEGINSYM;   WSYM[ 2]=CALLSYM;
   WSYM[ 3]=CONSTSYM;   WSYM[ 4]=DOSYM;
   WSYM[ 5]=ENDSYM;     WSYM[ 6]=IFSYM;
@@ -602,6 +633,12 @@ void __fastcall TForm1::ButtonRunClick(TObject *Sender) {
   WSYM[ 9]=PROGSYM;    WSYM[10]=READSYM;
   WSYM[11]=THENSYM;    WSYM[12]=VARSYM;
   WSYM[13]=WHILESYM;   WSYM[14]=WRITESYM;
+  WSYM[15] = ELSESYM;
+  WSYM[16] = FORSYM;
+  WSYM[17] = TOSYM;
+  WSYM[18] = DOWNTOSYM;
+  WSYM[19] = RETURNSYM;
+
   SSYM['+']=PLUS;      SSYM['-']=MINUS;
   SSYM['*']=TIMES;     SSYM['/']=SLASH;
   SSYM['(']=LPAREN;    SSYM[')']=RPAREN;

@@ -4,5 +4,10 @@ BEGIN
     A:=88;
     IF A<>0 THEN
         A:=0;
+    ELSE;
+    FOR;
+    TO;
+    DOWNTO;
+    RETURN;
     WRITE(A)
 END.
