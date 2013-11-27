@@ -374,26 +374,42 @@ void FACTOR(SYMSET FSYS, int LEV, int &TX) {
         } else if (SYM == PLUSPLUS) {
             GetSym();
             if (SYM == IDENT) {
-                switch (TABLE[i].KIND) {
-                    case CONSTANT: Error(11); break;
-                    case VARIABLE: 
-                                   GEN(LOD,LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR); break;
-                                   GEN(OPR, 0, 17); break;
-                    case PROCEDUR: Error(21); break;
+                i = POSITION(ID, TX);
+                if (i == 0) {
+                    Error(11);
+                } else {
+                    switch (TABLE[i].KIND) {
+                        case CONSTANT: Error(11); break;
+                        case VARIABLE: 
+                                       GEN(LOD,LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR);
+                                       GEN(OPR, 0, 17);
+                                       GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
+                                       GEN(LOD,LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR); break;
+                        case PROCEDUR: Error(21); break;
+                    }
+                    GetSym();
                 }
-                GetSym();
             } else {
                 Error(11);
             }
         } else if (SYM == MINUSMINUS) {
             GetSym();
             if (SYM == IDENT) {
-                switch (TABLE[i].KIND) {
-                    case CONSTANT: Error(11); break;
-                    case VARIABLE: GEN(OPR, 0, 18); break;
-                    case PROCEDUR: Error(21); break;
+                i = POSITION(ID, TX);
+                if (i == 0) {
+                    Error(11);
+                } else {
+                    switch (TABLE[i].KIND) {
+                        case CONSTANT: Error(11); break;
+                        case VARIABLE: 
+                                       GEN(LOD,LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR);
+                                       GEN(OPR, 0, 18);
+                                       GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
+                                       GEN(LOD,LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR); break;
+                        case PROCEDUR: Error(21); break;
+                    }
+                    GetSym();
                 }
-                GetSym();
             } else {
                 Error(11);
             }
@@ -414,10 +430,10 @@ void FACTOR(SYMSET FSYS, int LEV, int &TX) {
 //---------------------------------------------------------------------------
 void TERM(SYMSET FSYS, int LEV, int &TX) {  /*TERM*/
   SYMBOL MULOP;
-  FACTOR(SymSetUnion(FSYS,SymSetNew(TIMES,SLASH)), LEV,TX);
+  FACTOR(SymSetUnion(FSYS,SymSetNew(TIMES,SLASH, PLUSPLUS)), LEV,TX);
   while (SYM==TIMES || SYM==SLASH) {
     MULOP=SYM;  GetSym();
-    FACTOR(SymSetUnion(FSYS,SymSetNew(TIMES,SLASH)),LEV,TX);
+    FACTOR(SymSetUnion(FSYS,SymSetNew(TIMES,SLASH, PLUSPLUS)),LEV,TX);
     if (MULOP==TIMES) GEN(OPR,0,4);
     else GEN(OPR,0,5);
   }
@@ -881,6 +897,8 @@ void __fastcall TForm1::ButtonRunClick(TObject *Sender) {
   FACBEGSYS[IDENT] =1;
   FACBEGSYS[NUMBER]=1;
   FACBEGSYS[LPAREN]=1;
+  FACBEGSYS[PLUSPLUS]=1;
+  FACBEGSYS[MINUSMINUS]=1;
 
   if ((FIN=fopen((Form1->EditName->Text+".PL0").c_str(),"r"))!=0) {
     FOUT=fopen((Form1->EditName->Text+".COD").c_str(),"w");
