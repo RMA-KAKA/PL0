@@ -661,6 +661,54 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
         Form1->printfs("I am !");
         GetSym();
         break;
+    case PLUSPLUS:
+        GetSym();
+        if (SYM == IDENT) {
+            i = POSITION(ID, TX);
+            if (i == 0) {
+                Error(11);
+            } else if (TABLE[i].KIND != VARIABLE) {
+                Error(12);
+                i = 0;
+            } else {
+                GEN(LOD, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
+                GEN(OPR, 0, 17);
+                GetSym();
+                if (SYM == PLUSPLUS) {
+                    GEN(OPR, 0, 17);
+                    GetSym();
+                } else if (SYM == MINUSMINUS) {
+                    GEN(OPR, 0, 18);
+                    GetSym();
+                }
+                GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
+            }
+        }
+        break;
+    case MINUSMINUS:
+        GetSym();
+        if (SYM == IDENT) {
+            i = POSITION(ID, TX);
+            if (i == 0) {
+                Error(11);
+            } else if (TABLE[i].KIND != VARIABLE) {
+                Error(12);
+                i = 0;
+            } else {
+                GEN(LOD, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
+                GEN(OPR, 0, 18);
+                GetSym();
+                if (SYM == PLUSPLUS) {
+                    GEN(OPR, 0, 17);
+                    GetSym();
+                } else if (SYM == MINUSMINUS) {
+                    GEN(OPR, 0, 18);
+                    GetSym();
+                }
+                GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
+            }
+        }
+        break;
   }
   TEST(FSYS,SymSetNULL(),19);
 } /*STATEMENT*/
