@@ -389,19 +389,25 @@ void TERM(SYMSET FSYS, int LEV, int &TX) {  /*TERM*/
 } /*TERM*/;
 //---------------------------------------------------------------------------
 void EXPRESSION(SYMSET FSYS, int LEV, int &TX) {
-  SYMBOL ADDOP;
-  if (SYM==PLUS || SYM==MINUS) {
-    ADDOP=SYM; GetSym();
-    TERM(SymSetUnion(FSYS,SymSetNew(PLUS,MINUS)),LEV,TX);
-    if (ADDOP==MINUS) GEN(OPR,0,1);
-  }
-  else TERM(SymSetUnion(FSYS,SymSetNew(PLUS,MINUS)),LEV,TX);
-  while (SYM==PLUS || SYM==MINUS) {
-    ADDOP=SYM; GetSym();
-    TERM(SymSetUnion(FSYS,SymSetNew(PLUS,MINUS)),LEV,TX);
-    if (ADDOP==PLUS) GEN(OPR,0,2);
-    else GEN(OPR,0,3);
-  }
+    SYMBOL ADDOP;
+    if (SYM==PLUS || SYM==MINUS) {
+        ADDOP=SYM; GetSym();
+        TERM(SymSetUnion(FSYS,SymSetNew(PLUS,MINUS)),LEV,TX);
+        if (ADDOP==MINUS) {
+            GEN(OPR,0,1);
+        }
+    } else {
+        TERM(SymSetUnion(FSYS,SymSetNew(PLUS,MINUS)),LEV,TX);
+    }
+    while (SYM==PLUS || SYM==MINUS) {
+        ADDOP=SYM; GetSym();
+        TERM(SymSetUnion(FSYS,SymSetNew(PLUS,MINUS)),LEV,TX);
+        if (ADDOP==PLUS) {
+            GEN(OPR,0,2);
+        } else {
+            GEN(OPR,0,3);
+        } 
+    }
 } /*EXPRESSION*/
 //---------------------------------------------------------------------------
 void CONDITION(SYMSET FSYS,int LEV,int &TX) {
@@ -429,16 +435,34 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
   switch (SYM) {
     case IDENT:
         i=POSITION(ID,TX);
-        if (i==0) Error(11);
-        else
-          if (TABLE[i].KIND!=VARIABLE) { /*ASSIGNMENT TO NON-VARIABLE*/
+        if (i==0) {
+            Error(11);
+        } else if (TABLE[i].KIND != VARIABLE) { /*ASSIGNMENT TO NON-VARIABLE*/
             Error(12); i=0;
-          }
-        GetSym();
-        if (SYM==BECOMES) GetSym();
-        else Error(13);
-        EXPRESSION(FSYS,LEV,TX);
-        if (i!=0) GEN(STO,LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR);
+        } else {
+            GetSym();
+            if (SYM==BECOMES) {
+                GetSym();
+                EXPRESSION(FSYS,LEV,TX);
+                if (i != 0) {
+                    GEN(STO,LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR);
+                }
+            } else if (SYM == TIMESEQL) {
+                GetSym();
+                EXPRESSION(FSYS, LEV, TX);
+                GEN(LOD, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR );
+                GEN(OPR, 0, 4); // 栈顶和次栈顶相乘
+                GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
+            } else if (SYM == DIVEQL) {
+                GetSym();
+                GEN(LOD, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
+                EXPRESSION(FSYS, LEV, TX);
+                GEN(OPR, 0, 5);
+                GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
+            } else {
+                Error(13);
+            }
+        }
         break;
     case READSYM:
         GetSym();
@@ -534,8 +558,42 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
         CODE[CX2].A=CX;
         break;
     case FORSYM:
-        Form1->printfs("I am FOR");
         GetSym();
+        if (SYM == IDENT) {
+            //  左边变量
+            i = POSITION(ID, TX);
+            if (i == 0) {
+                Error(11);
+            } else if (TABLE[i].KIND != VARIABLE) {
+                Error(12);
+                i = 0;
+            }
+
+            // 赋值号
+            GetSym();
+            if (SYM == BECOMES) {
+                GetSym();
+            } else {
+                Error(13);
+            }
+
+            // 右边表达式
+            EXPRESSION(FSYS, LEV, TX);
+            if (i != 0) {
+                GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
+            }
+
+            // TO
+            GetSym();
+            if (SYM == TOSYM) {
+                GetSym();
+            } else {
+                Error(8);
+            }
+            EXPRESSION(FSYS, LEV, TX);
+        } else {
+            Error(8);
+        }
         break;
     case TOSYM:
         Form1->printfs("I am TO");
@@ -547,14 +605,6 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
         break;
     case RETURNSYM:
         Form1->printfs("I am RETURN");
-        GetSym();
-        break;
-    case TIMESEQL:
-        Form1->printfs("I am *=");
-        GetSym();
-        break;
-    case DIVEQL:
-        Form1->printfs("I am /=");
         GetSym();
         break;
     case PLUSPLUS:
@@ -659,7 +709,7 @@ void Interpret() {
           case 2: T--; S[T]=S[T]+S[T+1];   break;
           case 3: T--; S[T]=S[T]-S[T+1];   break;
           case 4: T--; S[T]=S[T]*S[T+1];   break;
-          case 5: T--; S[T]=S[T] % S[T+1]; break;
+          case 5: T--; S[T]=S[T]/S[T+1];   break;
           case 6: S[T]=(S[T]%2!=0);        break;
           case 8: T--; S[T]=S[T]==S[T+1];  break;
           case 9: T--; S[T]=S[T]!=S[T+1];  break;
