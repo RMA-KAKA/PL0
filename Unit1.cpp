@@ -15,6 +15,7 @@ const  NMAX  =  14;  /* MAX NUMBER OF DEGITS IN NUMBERS */
 const  AMAX  =2047;  /* MAXIMUM ADDRESS */
 const  LEVMAX=   3;  /* MAX DEPTH OF BLOCK NESTING */
 const  CXMAX = 200;  /* SIZE OF CODE ARRAY */
+const  SYMNUM = 45;  /* NUM OF SYMBOL*/
 
 typedef enum  { NUL, IDENT, NUMBER, PLUS, MINUS, TIMES,
                 SLASH, ODDSYM, EQL, NEQ, LSS, LEQ, GTR, GEQ,
@@ -84,8 +85,8 @@ int SymIn(SYMBOL SYM, SYMSET S1) {
 }
 //---------------------------------------------------------------------------
 SYMSET SymSetUnion(SYMSET S1, SYMSET S2) {
-    SYMSET S=(SYMSET)malloc(sizeof(int)*33);
-    for (int i=0; i<33; i++)
+    SYMSET S=(SYMSET)malloc(sizeof(int)*SYMNUM);
+    for (int i=0; i<SYMNUM; i++)
         if (S1[i] || S2[i]) S[i]=1;
         else S[i]=0;
     return S;
@@ -93,64 +94,64 @@ SYMSET SymSetUnion(SYMSET S1, SYMSET S2) {
 //---------------------------------------------------------------------------
 SYMSET SymSetAdd(SYMBOL SY, SYMSET S) {
     SYMSET S1;
-    S1=(SYMSET)malloc(sizeof(int)*33);
-    for (int i=0; i<33; i++) S1[i]=S[i];
+    S1=(SYMSET)malloc(sizeof(int)*SYMNUM);
+    for (int i=0; i<SYMNUM; i++) S1[i]=S[i];
     S1[SY]=1;
     return S1;
 }
 //---------------------------------------------------------------------------
 SYMSET SymSetNew(SYMBOL a) {
     SYMSET S; int i,k;
-    S=(SYMSET)malloc(sizeof(int)*33);
-    for (i=0; i<33; i++) S[i]=0;
+    S=(SYMSET)malloc(sizeof(int)*SYMNUM);
+    for (i=0; i<SYMNUM; i++) S[i]=0;
     S[a]=1;
     return S;
 }
 //---------------------------------------------------------------------------
 SYMSET SymSetNew(SYMBOL a, SYMBOL b) {
     SYMSET S; int i,k;
-    S=(SYMSET)malloc(sizeof(int)*33);
-    for (i=0; i<33; i++) S[i]=0;
+    S=(SYMSET)malloc(sizeof(int)*SYMNUM);
+    for (i=0; i<SYMNUM; i++) S[i]=0;
     S[a]=1;  S[b]=1;
     return S;
 }
 //---------------------------------------------------------------------------
 SYMSET SymSetNew(SYMBOL a, SYMBOL b, SYMBOL c) {
     SYMSET S; int i,k;
-    S=(SYMSET)malloc(sizeof(int)*33);
-    for (i=0; i<33; i++) S[i]=0;
+    S=(SYMSET)malloc(sizeof(int)*SYMNUM);
+    for (i=0; i<SYMNUM; i++) S[i]=0;
     S[a]=1;  S[b]=1; S[c]=1;
     return S;
 }
 //---------------------------------------------------------------------------
 SYMSET SymSetNew(SYMBOL a, SYMBOL b, SYMBOL c, SYMBOL d) {
     SYMSET S; int i,k;
-    S=(SYMSET)malloc(sizeof(int)*33);
-    for (i=0; i<33; i++) S[i]=0;
+    S=(SYMSET)malloc(sizeof(int)*SYMNUM);
+    for (i=0; i<SYMNUM; i++) S[i]=0;
     S[a]=1;  S[b]=1; S[c]=1; S[d]=1;
     return S;
 }
 //---------------------------------------------------------------------------
 SYMSET SymSetNew(SYMBOL a, SYMBOL b, SYMBOL c, SYMBOL d,SYMBOL e) {
     SYMSET S; int i,k;
-    S=(SYMSET)malloc(sizeof(int)*33);
-    for (i=0; i<33; i++) S[i]=0;
+    S=(SYMSET)malloc(sizeof(int)*SYMNUM);
+    for (i=0; i<SYMNUM; i++) S[i]=0;
     S[a]=1;  S[b]=1; S[c]=1; S[d]=1; S[e]=1;
     return S;
 }
 //---------------------------------------------------------------------------
 SYMSET SymSetNew(SYMBOL a, SYMBOL b, SYMBOL c, SYMBOL d,SYMBOL e, SYMBOL f) {
     SYMSET S; int i,k;
-    S=(SYMSET)malloc(sizeof(int)*33);
-    for (i=0; i<33; i++) S[i]=0;
+    S=(SYMSET)malloc(sizeof(int)*SYMNUM);
+    for (i=0; i<SYMNUM; i++) S[i]=0;
     S[a]=1;  S[b]=1; S[c]=1; S[d]=1; S[e]=1; S[f]=1;
     return S;
 }
 //---------------------------------------------------------------------------
 SYMSET SymSetNULL() {
     SYMSET S; int i,n,k;
-    S=(SYMSET)malloc(sizeof(int)*33);
-    for (i=0; i<33; i++) S[i]=0;
+    S=(SYMSET)malloc(sizeof(int)*SYMNUM);
+    for (i=0; i<SYMNUM; i++) S[i]=0;
     return S;
 }
 //---------------------------------------------------------------------------
@@ -348,33 +349,67 @@ void ListCode(int CX0) {  /*LIST CODE GENERATED FOR THIS Block*/
 } /*ListCode()*/;
 //---------------------------------------------------------------------------
 void FACTOR(SYMSET FSYS, int LEV, int &TX) {
-  int i;
-  TEST(FACBEGSYS,FSYS,24);
-  while (SymIn(SYM,FACBEGSYS)) {
-    if (SYM==IDENT) {
-      i=POSITION(ID,TX);
-      if (i==0) Error(11);
-      else
-        switch (TABLE[i].KIND) {
-          case CONSTANT: GEN(LIT,0,TABLE[i].VAL); break;
-          case VARIABLE: GEN(LOD,LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR); break;
-          case PROCEDUR: Error(21); break;
+    int i;
+    TEST(FACBEGSYS, FSYS, 24);
+    while (SymIn(SYM, FACBEGSYS)) {
+        if (SYM == IDENT) {
+            i=POSITION(ID,TX);
+            if (i==0) {
+                Error(11);
+            } else {
+                switch (TABLE[i].KIND) {
+                    case CONSTANT: GEN(LIT,0,TABLE[i].VAL); break;
+                    case VARIABLE: GEN(LOD,LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR); break;
+                    case PROCEDUR: Error(21); break;
+                }
+            }
+            GetSym();
+            if (SYM == PLUSPLUS) {
+                // TODO
+                GetSym();
+            } else if (SYM == MINUSMINUS) {
+                // TODO
+                GetSym();
+            }
+        } else if (SYM == PLUSPLUS) {
+            GetSym();
+            if (SYM == IDENT) {
+                switch (TABLE[i].KIND) {
+                    case CONSTANT: Error(11); break;
+                    case VARIABLE: 
+                                   GEN(LOD,LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR); break;
+                                   GEN(OPR, 0, 17); break;
+                    case PROCEDUR: Error(21); break;
+                }
+                GetSym();
+            } else {
+                Error(11);
+            }
+        } else if (SYM == MINUSMINUS) {
+            GetSym();
+            if (SYM == IDENT) {
+                switch (TABLE[i].KIND) {
+                    case CONSTANT: Error(11); break;
+                    case VARIABLE: GEN(OPR, 0, 18); break;
+                    case PROCEDUR: Error(21); break;
+                }
+                GetSym();
+            } else {
+                Error(11);
+            }
+        } else if (SYM==NUMBER) {
+            if (NUM>AMAX) { Error(31); NUM=0; }
+            GEN(LIT,0,NUM); GetSym();
+        } else if (SYM==LPAREN) {
+            GetSym(); EXPRESSION(SymSetAdd(RPAREN,FSYS),LEV,TX);
+            if (SYM==RPAREN) {
+                GetSym();
+            } else {
+                Error(22);
+            }
         }
-      GetSym();
+        TEST(FSYS,FACBEGSYS,23);
     }
-    else
-      if (SYM==NUMBER) {
-        if (NUM>AMAX) { Error(31); NUM=0; }
-        GEN(LIT,0,NUM); GetSym();
-      }
-      else
-        if (SYM==LPAREN) {
-          GetSym(); EXPRESSION(SymSetAdd(RPAREN,FSYS),LEV,TX);
-          if (SYM==RPAREN) GetSym();
-          else Error(22);
-        }
-      TEST(FSYS,FACBEGSYS,23);
-  }
 }/*FACTOR*/
 //---------------------------------------------------------------------------
 void TERM(SYMSET FSYS, int LEV, int &TX) {  /*TERM*/
@@ -459,6 +494,16 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
                 EXPRESSION(FSYS, LEV, TX);
                 GEN(OPR, 0, 5);
                 GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
+            } else if (SYM == PLUSPLUS) {
+                GEN(LOD, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
+                GEN(OPR, 0, 17);
+                GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
+                GetSym();
+            } else if (SYM == MINUSMINUS) {
+                GetSym();
+                GEN(LOD, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
+                GEN(OPR, 0, 18);
+                GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
             } else {
                 Error(13);
             }
@@ -480,7 +525,7 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
             GetSym();
           }while(SYM==COMMA);
         if (SYM!=RPAREN) {
-          Error(33);
+          Error(SYMNUM);
           while (!SymIn(SYM,FSYS)) GetSym();
         }
         else GetSym();
@@ -493,7 +538,7 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
             EXPRESSION(SymSetUnion(SymSetNew(RPAREN,COMMA),FSYS),LEV,TX);
             GEN(OPR,0,14);
           }while(SYM==COMMA);
-          if (SYM!=RPAREN) Error(33);
+          if (SYM!=RPAREN) Error(SYMNUM);
           else GetSym();
         }
         GEN(OPR,0,15);
@@ -521,12 +566,7 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
         }
         CX1 = CX; // 保存当前地址 
         GEN(JPC,0,0); // 生成跳转指令，跳转地址暂写0
-        STATEMENT(FSYS,LEV,TX); // 处理then后的语句  
-
-        // 处理分号
-        if (SYM == SEMICOLON) {
-            GetSym();
-        }
+        STATEMENT(SymSetUnion(SymSetNew(ELSESYM),FSYS),LEV,TX);
 
         CX2 = CX;
         GEN(JMP, 0, 0); //跳转到else后面的出口
@@ -534,6 +574,8 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
         if (SYM == ELSESYM) {
             GetSym();
             STATEMENT(FSYS,LEV,TX); // 处理else后的语句  
+            CODE[CX2].A=CX; // 回填if的出口
+        } else {
             CODE[CX2].A=CX; // 回填if的出口
         }
         break;
@@ -605,14 +647,6 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
         break;
     case RETURNSYM:
         Form1->printfs("I am RETURN");
-        GetSym();
-        break;
-    case PLUSPLUS:
-        Form1->printfs("I am ++");
-        GetSym();
-        break;
-    case MINUSMINUS:
-        Form1->printfs("I am --");
         GetSym();
         break;
     case AND:
@@ -723,6 +757,8 @@ void Interpret() {
           case 16: T++;  S[T]=InputBox("输入","请键盘输入：", 0).ToInt();
                    Form1->printls("? ",S[T]); fprintf(FOUT,"? %d\n",S[T]);
                    break;
+          case 17: S[T]++; break;
+          case 18: S[T]--; break;
         }
         break;
       case LOD: T++; S[T]=S[BASE(I.L,B,S)+I.A]; break;
@@ -780,10 +816,10 @@ void __fastcall TForm1::ButtonRunClick(TObject *Sender) {
   strcpy(MNEMONIC[CAL],"CAL");   strcpy(MNEMONIC[INI],"INI");
   strcpy(MNEMONIC[JMP],"JMP");   strcpy(MNEMONIC[JPC],"JPC");
 
-  DECLBEGSYS=(int*)malloc(sizeof(int)*33);
-  STATBEGSYS=(int*)malloc(sizeof(int)*33);
-  FACBEGSYS =(int*)malloc(sizeof(int)*33);
-  for(int j=0; j<33; j++) {
+  DECLBEGSYS=(int*)malloc(sizeof(int)*SYMNUM);
+  STATBEGSYS=(int*)malloc(sizeof(int)*SYMNUM);
+  FACBEGSYS =(int*)malloc(sizeof(int)*SYMNUM);
+  for(int j=0; j<SYMNUM; j++) {
     DECLBEGSYS[j]=0;  STATBEGSYS[j]=0;  FACBEGSYS[j] =0;
   }
   DECLBEGSYS[CONSTSYM]=1;
