@@ -36,7 +36,7 @@ char *SYMOUT[] = {"NUL", "IDENT", "NUMBER", "PLUS", "MINUS", "TIMES",
 typedef  int *SYMSET; // SET OF SYMBOL;
 typedef  char ALFA[11];
 typedef  enum { CONSTANT, VARIABLE, PROCEDUR } OBJECTS ;
-typedef  enum { LIT, OPR, LOD, STO, CAL, INI, JMP, JPC } FCT;
+typedef  enum { LIT, OPR, LOD, STO, CAL, INI, JMP, JPC, PP, MM } FCT;
 typedef struct {
     FCT F;     /*FUNCTION CODE*/
     int L;     /*0..LEVMAX  LEVEL*/
@@ -62,7 +62,7 @@ INSTRUCTION  CODE[CXMAX];
 ALFA    KWORD[NORW+1];
 SYMBOL  WSYM[NORW+1];
 SYMBOL  SSYM['^'+1];
-ALFA    MNEMONIC[9];
+ALFA    MNEMONIC[11];
 SYMSET  DECLBEGSYS, STATBEGSYS, FACBEGSYS;
 
 struct {
@@ -365,10 +365,10 @@ void FACTOR(SYMSET FSYS, int LEV, int &TX) {
             }
             GetSym();
             if (SYM == PLUSPLUS) {
-                // TODO
+                GEN(PP, LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR);
                 GetSym();
             } else if (SYM == MINUSMINUS) {
-                // TODO
+                GEN(MM, LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR);
                 GetSym();
             }
         } else if (SYM == PLUSPLUS) {
@@ -381,10 +381,9 @@ void FACTOR(SYMSET FSYS, int LEV, int &TX) {
                     switch (TABLE[i].KIND) {
                         case CONSTANT: Error(11); break;
                         case VARIABLE: 
+                                       GEN(PP, LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR);
                                        GEN(LOD,LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR);
-                                       GEN(OPR, 0, 17);
-                                       GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
-                                       GEN(LOD,LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR); break;
+                                       break;
                         case PROCEDUR: Error(21); break;
                     }
                     GetSym();
@@ -402,10 +401,9 @@ void FACTOR(SYMSET FSYS, int LEV, int &TX) {
                     switch (TABLE[i].KIND) {
                         case CONSTANT: Error(11); break;
                         case VARIABLE: 
+                                       GEN(MM, LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR);
                                        GEN(LOD,LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR);
-                                       GEN(OPR, 0, 18);
-                                       GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
-                                       GEN(LOD,LEV-TABLE[i].vp.LEVEL,TABLE[i].vp.ADR); break;
+                                       break;
                         case PROCEDUR: Error(21); break;
                     }
                     GetSym();
@@ -511,15 +509,11 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
                 GEN(OPR, 0, 5);
                 GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
             } else if (SYM == PLUSPLUS) {
-                GEN(LOD, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
-                GEN(OPR, 0, 17);
-                GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
+                GEN(PP, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
                 GetSym();
             } else if (SYM == MINUSMINUS) {
+                GEN(MM, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
                 GetSym();
-                GEN(LOD, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
-                GEN(OPR, 0, 18);
-                GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
             } else {
                 Error(13);
             }
@@ -687,17 +681,15 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
                 Error(12);
                 i = 0;
             } else {
-                GEN(LOD, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
-                GEN(OPR, 0, 17);
+                GEN(PP, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
                 GetSym();
                 if (SYM == PLUSPLUS) {
-                    GEN(OPR, 0, 17);
+                    GEN(PP, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
                     GetSym();
                 } else if (SYM == MINUSMINUS) {
-                    GEN(OPR, 0, 18);
+                    GEN(MM, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
                     GetSym();
                 }
-                GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
             }
         }
         break;
@@ -711,17 +703,15 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
                 Error(12);
                 i = 0;
             } else {
-                GEN(LOD, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
-                GEN(OPR, 0, 18);
+                GEN(MM, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
                 GetSym();
                 if (SYM == PLUSPLUS) {
-                    GEN(OPR, 0, 17);
+                    GEN(PP, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
                     GetSym();
                 } else if (SYM == MINUSMINUS) {
-                    GEN(OPR, 0, 18);
+                    GEN(MM, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
                     GetSym();
                 }
-                GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
             }
         }
         break;
@@ -788,55 +778,57 @@ int BASE(int L,int B,int S[]) {
 } /*BASE*/
 //---------------------------------------------------------------------------
 void Interpret() {
-  const STACKSIZE = 500;
-  int P,B,T;         /*PROGRAM BASE TOPSTACK REGISTERS*/
-  INSTRUCTION I;
-  int S[STACKSIZE];      /*DATASTORE*/
-  Form1->printfs("~~~ RUN PL0 ~~~");
-  fprintf(FOUT,"~~~ RUN PL0 ~~~\n");
-  T=0; B=1; P=0;
-  S[1]=0; S[2]=0; S[3]=0;
-  do {
+    const STACKSIZE = 500;
+    int P,B,T;         /*PROGRAM BASE TOPSTACK REGISTERS*/
+    INSTRUCTION I;
+    int S[STACKSIZE];      /*DATASTORE*/
+    Form1->printfs("~~~ RUN PL0 ~~~");
+    fprintf(FOUT,"~~~ RUN PL0 ~~~\n");
+    T=0; B=1; P=0;
+    S[1]=0; S[2]=0; S[3]=0;
+    do {
     I=CODE[P]; P=P+1;
     switch (I.F) {
-      case LIT: T++; S[T]=I.A; break;
-      case OPR:
-        switch (I.A) { /*OPERATOR*/
-          case 0: /*RETURN*/ T=B-1; P=S[T+3]; B=S[T+2]; break;
-          case 1: S[T]=-S[T];  break;
-          case 2: T--; S[T]=S[T]+S[T+1];   break;
-          case 3: T--; S[T]=S[T]-S[T+1];   break;
-          case 4: T--; S[T]=S[T]*S[T+1];   break;
-          case 5: T--; S[T]=S[T]/S[T+1];   break;
-          case 6: S[T]=(S[T]%2!=0);        break;
-          case 8: T--; S[T]=S[T]==S[T+1];  break;
-          case 9: T--; S[T]=S[T]!=S[T+1];  break;
-          case 10: T--; S[T]=S[T]<S[T+1];   break;
-          case 11: T--; S[T]=S[T]>=S[T+1];  break;
-          case 12: T--; S[T]=S[T]>S[T+1];   break;
-          case 13: T--; S[T]=S[T]<=S[T+1];  break;
-          case 14: Form1->printls("",S[T]); fprintf(FOUT,"%d\n",S[T]); T--;
-                   break;
-          case 15: /*Form1->printfs(""); fprintf(FOUT,"\n"); */ break;
-          case 16: T++;  S[T]=InputBox("ÊäÈë","Çë¼üÅÌÊäÈë£º", 0).ToInt();
-                   Form1->printls("? ",S[T]); fprintf(FOUT,"? %d\n",S[T]);
-                   break;
-          case 17: S[T]++; break;
-          case 18: S[T]--; break;
-        }
-        break;
-      case LOD: T++; S[T]=S[BASE(I.L,B,S)+I.A]; break;
-      case STO: S[BASE(I.L,B,S)+I.A]=S[T]; T--; break;
-      case CAL: /*GENERAT NEW Block MARK*/
-          S[T+1]=BASE(I.L,B,S); S[T+2]=B; S[T+3]=P;
-          B=T+1; P=I.A; break;
-      case INI: T=T+I.A;  break;
-      case JMP: P=I.A; break;
-      case JPC: if (S[T]==0) P=I.A;  T--;  break;
-    } /*switch*/
-  }while(P!=0);
-  Form1->printfs("~~~ END PL0 ~~~");
-  fprintf(FOUT,"~~~ END PL0 ~~~\n");
+        case LIT: T++; S[T]=I.A; break;
+        case OPR:
+            switch (I.A) { /*OPERATOR*/
+                case 0: /*RETURN*/ T=B-1; P=S[T+3]; B=S[T+2]; break;
+                case 1: S[T]=-S[T];  break;
+                case 2: T--; S[T]=S[T]+S[T+1];   break;
+                case 3: T--; S[T]=S[T]-S[T+1];   break;
+                case 4: T--; S[T]=S[T]*S[T+1];   break;
+                case 5: T--; S[T]=S[T]/S[T+1];   break;
+                case 6: S[T]=(S[T]%2!=0);        break;
+                case 8: T--; S[T]=S[T]==S[T+1];  break;
+                case 9: T--; S[T]=S[T]!=S[T+1];  break;
+                case 10: T--; S[T]=S[T]<S[T+1];   break;
+                case 11: T--; S[T]=S[T]>=S[T+1];  break;
+                case 12: T--; S[T]=S[T]>S[T+1];   break;
+                case 13: T--; S[T]=S[T]<=S[T+1];  break;
+                case 14: Form1->printls("",S[T]); fprintf(FOUT,"%d\n",S[T]); T--;
+                         break;
+                case 15: /*Form1->printfs(""); fprintf(FOUT,"\n"); */ break;
+                case 16: T++;
+                         S[T]=InputBox("ÊäÈë","Çë¼üÅÌÊäÈë£º", 0).ToInt();
+                         Form1->printls("? ",S[T]); fprintf(FOUT,"? %d\n",S[T]);
+                         break;
+            }
+            break;
+        case LOD: T++; S[T]=S[BASE(I.L,B,S)+I.A]; break;
+        case STO: S[BASE(I.L,B,S)+I.A]=S[T]; T--; break;
+        case CAL: /*GENERAT NEW Block MARK*/
+              S[T+1]=BASE(I.L,B,S); S[T+2]=B; S[T+3]=P;
+              B=T+1; P=I.A; break;
+        case INI: T=T+I.A;  break;
+        case JMP: P=I.A; break;
+        case JPC: if (S[T]==0) P=I.A;  T--;  break;
+        case PP: S[BASE(I.L, B, S) + I.A]++; break;
+        case MM: S[BASE(I.L, B, S) + I.A]--; break;
+ 
+} /*switch*/
+}while(P!=0);
+Form1->printfs("~~~ END PL0 ~~~");
+fprintf(FOUT,"~~~ END PL0 ~~~\n");
 } /*Interpret*/
 //---------------------------------------------------------------------------
 void __fastcall TForm1::ButtonRunClick(TObject *Sender) {
@@ -879,6 +871,7 @@ void __fastcall TForm1::ButtonRunClick(TObject *Sender) {
   strcpy(MNEMONIC[LOD],"LOD");   strcpy(MNEMONIC[STO],"STO");
   strcpy(MNEMONIC[CAL],"CAL");   strcpy(MNEMONIC[INI],"INI");
   strcpy(MNEMONIC[JMP],"JMP");   strcpy(MNEMONIC[JPC],"JPC");
+  strcpy(MNEMONIC[PP],"PP");   strcpy(MNEMONIC[MM],"MM");
 
   DECLBEGSYS=(int*)malloc(sizeof(int)*SYMNUM);
   STATBEGSYS=(int*)malloc(sizeof(int)*SYMNUM);
