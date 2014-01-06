@@ -1,13 +1,10 @@
 PROGRAM EX01;
-VAR A,B,C;
+VAR A;
 BEGIN
-    A:=88;
-    IF A<>0 THEN
-        A:=0;
-    ELSE;
-    FOR;
-    TO;
-    DOWNTO;
-    RETURN;
-    WRITE(A)
+    IF A<>9 THEN 
+        WRITE(35)
+    ELSE
+        WRITE(88);
+    IF A<>10 THEN 
+        WRITE(4)
 END.
