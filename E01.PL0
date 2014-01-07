@@ -1,6 +1,6 @@
 PROGRAM EX01;
 VAR A;
 BEGIN
-    STEP;
-    UNTIL
+    FOR A:=1 STEP 2 UNTIL 11 DO
+        WRITE(A)
 END.

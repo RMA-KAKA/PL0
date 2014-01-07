@@ -340,7 +340,7 @@ void VarDeclaration(int LEV,int &TX,int &DX) {
 void ListCode(int CX0) {  /*LIST CODE GENERATED FOR THIS Block*/
   if (Form1->ListSwitch->ItemIndex==0)
     for (int i=CX0; i<CX; i++) {
-      String s=IntToStr(i);
+    String s=IntToStr(i);
       while(s.Length()<3)s=" "+s;
       s=s+" "+MNEMONIC[CODE[i].F]+" "+IntToStr(CODE[i].L)+" "+IntToStr(CODE[i].A);
       Form1->printfs(s.c_str());
@@ -610,16 +610,66 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
         CODE[CX2].A=CX;
         break;
     case FORSYM:
-        Form1->printfs("I am STEP");
         GetSym();
-        break;
-    case STEPSYM:
-        Form1->printfs("I am STEP");
-        GetSym();
-        break;
-    case UNTILSYM:
-        Form1->printfs("I am UNTIL");
-        GetSym();
+        if (SYM == IDENT) {
+            //  左边变量
+            i = POSITION(ID, TX);
+            if (i == 0) {
+                Error(11);
+            } else if (TABLE[i].KIND != VARIABLE) {
+                Error(12);
+                i = 0;
+            }
+
+            // 赋值号
+            GetSym();
+            if (SYM == BECOMES) {
+                GetSym();
+            } else {
+                Error(13);
+            }
+
+            // 右边表达式
+            EXPRESSION(SymSetUnion(SymSetNew(STEPSYM), FSYS), LEV, TX);
+            if (i != 0) {
+                GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
+            }
+
+            // STEP
+            if (SYM == STEPSYM) {
+                GetSym();
+                CX1 = CX;
+                GEN(JMP, 0, 0); // 无条件跳转到UNTIL
+                CX2 = CX;
+                GEN(LOD, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR); // 把迭代器的值放到栈顶
+                EXPRESSION(SymSetUnion(SymSetNew(UNTILSYM), FSYS), LEV, TX); // 读取STEP的值到栈顶
+                GEN(OPR, 0, 2); // 迭代器与STEP值相加放到栈顶
+                GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR); // 更新迭代器的值
+                if (SYM == UNTILSYM) {
+                    GetSym();
+                    CODE[CX1].A = CX; // 回填STEP后面的跳转
+                    EXPRESSION(SymSetUnion(SymSetNew(DOSYM), FSYS), LEV, TX); // 读取UNTIL的值到栈顶
+                    GEN(LOD, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR); // 把迭代器的值放到栈顶
+                    GEN(OPR, 0, 12); // 迭代器和UNTIL的值比较，结果放在栈顶
+                    CX1 = CX;
+                    GEN(JPC, 0, 0); // 生成条件跳转语句，栈顶暂填为0
+                    if (SYM == DOSYM) {
+                        GetSym();
+                        STATEMENT(FSYS, LEV, TX);
+                        GEN(JMP, 0, CX2);
+                        CODE[CX1].A = CX;
+                    } else {
+                        Error(8);
+                    }
+                } else {
+                    Error(8);
+                }
+            } else {
+                Error(8);
+            }
+        } else {
+            Error(8);
+        }
         break;
     case RETURNSYM:
         Form1->printfs("I am RETURN");
@@ -853,6 +903,7 @@ void __fastcall TForm1::ButtonRunClick(TObject *Sender) {
   STATBEGSYS[IFSYM]=1;
   STATBEGSYS[WHILESYM]=1;
   STATBEGSYS[WRITESYM]=1;
+  STATBEGSYS[FORSYM]=1;
   FACBEGSYS[IDENT] =1;
   FACBEGSYS[NUMBER]=1;
   FACBEGSYS[LPAREN]=1;
