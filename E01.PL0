@@ -1,6 +1,10 @@
 PROGRAM EX01;
 VAR A;
 BEGIN
+/* comment */
     FOR A:=1 STEP 2 UNTIL 11 DO
-        WRITE(A)
+/* comment */
+    WRITE(A);
+/* comment */
+WRITE(1)
 END.

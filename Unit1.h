@@ -18,6 +18,11 @@ __published:	// IDE-managed Components
     TEdit *EditName;
     TLabel *Label1;
     TRadioGroup *ListSwitch;
+        TLabel *Label2;
+        TLabel *Label3;
+        TLabel *Label4;
+        TLabel *Label5;
+        TLabel *Label6;
     void __fastcall ButtonRunClick(TObject *Sender);
 private:	// User declarations
 public:		// User declarations

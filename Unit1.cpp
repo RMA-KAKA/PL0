@@ -244,8 +244,17 @@ void GetSym() {
         if (CH == '=') {
             SYM = DIVEQL;
             GetCh();
-        } else {
-            Error(11);
+        } else if (CH == '*') {
+            while (1) {
+                GetCh();
+                if (CH == '*') {
+                    GetCh();
+                    if (CH == '/')
+                        break;
+                }
+            }
+            GetCh();
+            GetSym();
         }
     } else if (CH == '+') {
         GetCh();
@@ -937,4 +946,5 @@ void __fastcall TForm1::ButtonRunClick(TObject *Sender) {
   }
 }
 //---------------------------------------------------------------------------
+
 
