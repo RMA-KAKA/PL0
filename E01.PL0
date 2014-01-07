@@ -1,10 +1,6 @@
 PROGRAM EX01;
 VAR A;
 BEGIN
-    IF A<>9 THEN 
-        WRITE(35)
-    ELSE
-        WRITE(88);
-    IF A<>10 THEN 
-        WRITE(4)
+    STEP;
+    UNTIL
 END.

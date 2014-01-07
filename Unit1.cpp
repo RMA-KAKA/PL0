@@ -23,7 +23,7 @@ typedef enum  { NUL, IDENT, NUMBER, PLUS, MINUS, TIMES,
                 BECOMES, BEGINSYM, ENDSYM, IFSYM, THENSYM,
                 WHILESYM, WRITESYM, READSYM, DOSYM, CALLSYM,
                 CONSTSYM, VARSYM, PROCSYM, PROGSYM, ELSESYM, FORSYM,
-                TOSYM, DOWNTOSYM, RETURNSYM, TIMESEQL, DIVEQL, PLUSPLUS,
+                STEPSYM, UNTILSYM, RETURNSYM, TIMESEQL, DIVEQL, PLUSPLUS,
                 MINUSMINUS, AND, OROR, NOT, OR
         } SYMBOL;
 char *SYMOUT[] = {"NUL", "IDENT", "NUMBER", "PLUS", "MINUS", "TIMES",
@@ -32,7 +32,7 @@ char *SYMOUT[] = {"NUL", "IDENT", "NUMBER", "PLUS", "MINUS", "TIMES",
         "BECOMES", "BEGINSYM", "ENDSYM", "IFSYM", "THENSYM",
         "WHILESYM", "WRITESYM", "READSYM", "DOSYM", "CALLSYM",
         "CONSTSYM", "VARSYM", "PROCSYM", "PROGSYM", "ESYMLSESYM", "FORSYM",
-        "TOSYM", "DOWNTOSYM", "RETURNSYM"};
+        "STEPSYM", "UNTILSYM", "RETURNSYM"};
 typedef  int *SYMSET; // SET OF SYMBOL;
 typedef  char ALFA[11];
 typedef  enum { CONSTANT, VARIABLE, PROCEDUR } OBJECTS ;
@@ -610,49 +610,15 @@ void STATEMENT(SYMSET FSYS,int LEV,int &TX) {   /*STATEMENT*/
         CODE[CX2].A=CX;
         break;
     case FORSYM:
-        GetSym();
-        if (SYM == IDENT) {
-            //  左边变量
-            i = POSITION(ID, TX);
-            if (i == 0) {
-                Error(11);
-            } else if (TABLE[i].KIND != VARIABLE) {
-                Error(12);
-                i = 0;
-            }
-
-            // 赋值号
-            GetSym();
-            if (SYM == BECOMES) {
-                GetSym();
-            } else {
-                Error(13);
-            }
-
-            // 右边表达式
-            EXPRESSION(FSYS, LEV, TX);
-            if (i != 0) {
-                GEN(STO, LEV - TABLE[i].vp.LEVEL, TABLE[i].vp.ADR);
-            }
-
-            // TO
-            GetSym();
-            if (SYM == TOSYM) {
-                GetSym();
-            } else {
-                Error(8);
-            }
-            EXPRESSION(FSYS, LEV, TX);
-        } else {
-            Error(8);
-        }
-        break;
-    case TOSYM:
-        Form1->printfs("I am TO");
+        Form1->printfs("I am STEP");
         GetSym();
         break;
-    case DOWNTOSYM:
-        Form1->printfs("I am DOWNTO");
+    case STEPSYM:
+        Form1->printfs("I am STEP");
+        GetSym();
+        break;
+    case UNTILSYM:
+        Form1->printfs("I am UNTIL");
         GetSym();
         break;
     case RETURNSYM:
@@ -842,8 +808,8 @@ void __fastcall TForm1::ButtonRunClick(TObject *Sender) {
   strcpy(KWORD[13],"WHILE");    strcpy(KWORD[14],"WRITE");
   strcpy(KWORD[15], "ELSE");
   strcpy(KWORD[16], "FOR");
-  strcpy(KWORD[17], "TO");
-  strcpy(KWORD[18], "DOWNTO");
+  strcpy(KWORD[17], "STEP");
+  strcpy(KWORD[18], "UNTIL");
   strcpy(KWORD[19], "RETURN");
 
   WSYM[ 1]=BEGINSYM;   WSYM[ 2]=CALLSYM;
@@ -855,8 +821,8 @@ void __fastcall TForm1::ButtonRunClick(TObject *Sender) {
   WSYM[13]=WHILESYM;   WSYM[14]=WRITESYM;
   WSYM[15] = ELSESYM;
   WSYM[16] = FORSYM;
-  WSYM[17] = TOSYM;
-  WSYM[18] = DOWNTOSYM;
+  WSYM[17] = STEPSYM;
+  WSYM[18] = UNTILSYM;
   WSYM[19] = RETURNSYM;
 
   SSYM['+']=PLUS;      SSYM['-']=MINUS;
